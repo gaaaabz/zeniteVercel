@@ -8,7 +8,7 @@ const Cadastrar = dynamic(() => import('@/Components/Cadastrar/Cadastrar'), {
 
 export default function CadastroPage() {
   return (
-    <div className="min-h-screen bg-[#ECECEC]">
+    <div className="min-h-screen bg-gray-400">
       <Cadastrar />
     </div>
   );
