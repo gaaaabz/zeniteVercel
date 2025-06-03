@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { useRouter } from "next/navigation";
+import Link from 'next/link';
 
 export default function Login() {
   const router = useRouter();
@@ -87,7 +88,12 @@ export default function Login() {
         </form>
         <div className="mt-4 text-xs text-center flex flex-row items-center justify-center gap-1">
           <span className="text-gray-600">Caso não tenha cadastro</span>
-          <a href="/cadastro" className="text-black font-semibold hover:underline text-xs">Criar conta</a>
+          <Link 
+            href="/cadastrar" 
+            className="text-[#00386B] font-semibold hover:underline text-xs transition-colors"
+          >
+            Criar conta
+          </Link>
         </div>
       </div>
     </section>
