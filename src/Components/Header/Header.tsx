@@ -1,22 +1,26 @@
 'use client'
-import { useEffect } from 'react';
-import Link from 'next/link'
-import Image from 'next/image'
-import { useState } from "react";
-import { usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleLogin = () => {
+    router.push('/login');
+  };
+
   return (
     <header className="bg-zenite w-full py-4">
       <div className="container-custom flex items-center justify-between">
-        <Link href="/" className="text-2xl font-bold text-white hover:opacity-90 transition-opacity">
+        <button onClick={() => router.push('/')} className="text-2xl font-bold text-white hover:opacity-90 transition-opacity">
           Zenite
-        </Link>
+        </button>
         <nav className="flex gap-4 items-center">
-          <Link href="/alertas" className="nav-item">Alertas</Link>
-          <Link href="/prevencao" className="nav-item">Prevenção</Link>
-          <Link href="/cadastro" className="custom-button custom-button-primary">Cadastro</Link>
-          <Link href="/login" className="custom-button custom-button-secondary">Login</Link>
+          {pathname !== '/login' && (
+            <button onClick={handleLogin} className="custom-button custom-button-secondary">
+              Login
+            </button>
+          )}
         </nav>
       </div>
     </header>
