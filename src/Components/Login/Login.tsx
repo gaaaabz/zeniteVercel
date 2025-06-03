@@ -2,46 +2,70 @@
 import React, { useState } from 'react';
 import { useRouter } from "next/navigation";
 import Link from 'next/link';
+import { useEffect} from 'react';
 
 export default function Login() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    email: '',
-    senha: ''
+  const navigate = useRouter();
+  useEffect(() => {
+      const user = localStorage.getItem("usuarioLogado");
+      if (user) {
+        navigate.push("/");
+      }});
+  const [loginData, setLoginData] = useState({
+    email: "",
+    senha: "",
   });
+
   const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setLoginData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError('');
+  e.preventDefault();
+  setError('');
 
-    // Validação básica
-    if (!formData.email || !formData.senha) {
-      setError('Por favor, preencha todos os campos');
-      return;
+
+  if (!loginData.email || !loginData.senha) {
+    setError('Por favor, preencha todos os campos');
+    return;
+  }
+
+  if (!loginData.email.includes('@')) {
+    setError('Por favor, insira um email válido');
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:8080/usuario/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: loginData.email,
+        senha: loginData.senha
+      })
+    });
+
+    if (!response.ok) {
+      console.log(loginData)
+      throw new Error("Login inválido");
+      
     }
 
-    if (!formData.email.includes('@')) {
-      setError('Por favor, insira um email válido');
-      return;
-    }
-
-    try {
-      // Aqui você pode adicionar a lógica de autenticação
-      console.log('Dados do formulário:', formData);
-      // Se o login for bem-sucedido, redireciona para a página inicial
-      router.push('/');
-    } catch (err) {
-      setError('Erro ao fazer login. Por favor, tente novamente.');
-    }
+    const usuarioLogado = await response.json();
+    localStorage.setItem("usuarioLogado", JSON.stringify(usuarioLogado));
+    alert("Login realizado com sucesso!");
+    window.location.reload();
+  } catch (error) {
+    alert("Usuário ou senha inválidos.");
+    console.error("Erro no login:", error);
+  }
   };
 
   return (
@@ -62,7 +86,7 @@ export default function Login() {
               id="email"
               onChange={handleChange}
               name="email"
-              value={formData.email}
+              value={loginData.email}
               className="w-full bg-[#F3F3F3] border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-900"
               required
             />
@@ -74,7 +98,7 @@ export default function Login() {
               type="password"
               id="senha"
               name="senha"
-              value={formData.senha}
+              value={loginData.senha}
               className="w-full bg-[#F3F3F3] border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-900"
               required
             />

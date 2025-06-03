@@ -17,18 +17,14 @@ export default function Cadastrar() {
 
   const [conta, setConta] = useState<Omit<ContaType,"id">>({
     nome: "",
-    cpf: "",
     email: "",
-    senha: "",
-    telefone: "",
-    nascimento: "",
-    genero: "",
+    senha: ""
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setConta(prev => ({ ...prev, [name]: value }));
-    setError(''); // Limpa o erro quando o usuário começa a digitar
+    setError(''); 
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -36,7 +32,6 @@ export default function Cadastrar() {
     setError('');
     setLoading(true);
 
-    // Validações básicas
     if (!conta.email.includes('@')) {
       setError('Por favor, insira um email válido');
       setLoading(false);
@@ -49,14 +44,10 @@ export default function Cadastrar() {
       return;
     }
 
-    if (!conta.genero) {
-      setError('Por favor, selecione um gênero');
-      setLoading(false);
-      return;
-    }
+    console.log(JSON.stringify(conta));
 
     try {
-      const response = await fetch("https://sprint4ddd-production.up.railway.app/passageiro", {
+      const response = await fetch("http://localhost:8080/usuario", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -95,40 +86,12 @@ export default function Cadastrar() {
               <input type="text" id="nome" name="nome" value={conta.nome} onChange={handleChange} required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
             </div>
             <div>
-              <label htmlFor="cpf" className="block text-sm font-bold text-black mb-1">CPF</label>
-              <input type="text" id="cpf" name="cpf" value={conta.cpf} onChange={handleChange} required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
-            </div>
-            <div>
               <label htmlFor="email" className="block text-sm font-bold text-black mb-1">E-mail</label>
               <input type="email" id="email" name="email" value={conta.email} onChange={handleChange} required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
             </div>
             <div>
-              <label htmlFor="telefone" className="block text-sm font-bold text-black mb-1">Telefone</label>
-              <input type="tel" id="telefone" name="telefone" value={conta.telefone} onChange={handleChange} required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
-            </div>
-            <div>
-              <label htmlFor="nascimento" className="block text-sm font-bold text-black mb-1">Data de Nascimento</label>
-              <input type="date" id="nascimento" name="nascimento" value={conta.nascimento} onChange={handleChange} required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
-            </div>
-            <div>
               <label htmlFor="senha" className="block text-sm font-bold text-black mb-1">Senha</label>
               <input type="password" id="senha" name="senha" value={conta.senha} onChange={handleChange} minLength={6} required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-black mb-1">Gênero</label>
-              {["Masculino", "Feminino", "Não binário", "Outro"].map((g) => (
-                <label key={g} className="block text-sm text-black">
-                  <input 
-                    type="radio" 
-                    name="genero" 
-                    value={g} 
-                    checked={conta.genero === g}
-                    onChange={handleChange}
-                    className="mr-1"
-                  />
-                  {g}
-                </label>
-              ))}
             </div>
           </div>
           
