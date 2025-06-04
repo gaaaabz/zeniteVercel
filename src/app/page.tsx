@@ -21,7 +21,7 @@ export default function Home() {
           </p>
           <div className="flex gap-4">
             <Link 
-              href="/alertas"
+              href="/Alerta"
               className="bg-[#64748B] hover:bg-[#475569] text-white font-semibold px-4 py-2 rounded transition-colors"
             >
               Ver Alertas
