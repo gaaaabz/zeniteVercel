@@ -1,22 +1,38 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function CadastroEndereco() {
   const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
-  const [endereco, setEndereco] = useState({
-    Apelido: "",
-    cep: "",
-    logradouro: "",
-    bairro: "",
-    cidade: "",
-    estado: "",
-    latitude: '',
-    longitude: ''
+
+     const [endereco, setEndereco] = useState({
+      nome: "",
+      cep: "",
+      logradouro: "",
+      bairro: "",
+      cidade: "",
+      estado: "",
+      latitude: '',
+      longitude: '',
+      idUsuario: 0
   });
+
+  useEffect(() => {
+    const usuarioJSON = localStorage.getItem("usuarioLogado");
+    if (!usuarioJSON) {
+      router.push('/');
+      return;
+    }
+
+    const usuario = JSON.parse(usuarioJSON);
+    setEndereco(prev => ({
+      ...prev,
+      idUsuario: usuario.id
+    }));
+  }, []);
+    
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -54,20 +70,47 @@ export default function CadastroEndereco() {
   }
   };
 
+  const pegarLatLong = async () => {
+    
+  try {
+    const enderecoCompleto = `${endereco.logradouro}, ${endereco.bairro}, ${endereco.cidade}, ${endereco.estado}`;
+
+    const response = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(enderecoCompleto)}&key=76f96f8dcfa6497497248424504e63bb`);
+    const data = await response.json();
+
+    if (data && data.results && data.results.length > 0) {
+      const { lat, lng } = data.results[0].geometry;
+      return {
+        ...endereco,
+        latitude: lat,
+        longitude: lng,
+      };
+    }
+    } catch (error) {
+    console.error('Erro ao obter coordenadas:', error);
+    }
+  }
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
-    console.log(endereco)
-
     try {
+      const enderecoCompleto = await pegarLatLong(); // <- AQUI você espera o resultado
+
+    if (!enderecoCompleto) {
+      throw new Error('Não foi possível obter latitude/longitude');
+    }
+  
+
+    setEndereco(enderecoCompleto)
+    console.log(enderecoCompleto)
+ 
       const response = await fetch("http://localhost:8080/endereco", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(endereco)
+        body: JSON.stringify(enderecoCompleto)
       });
 
       if (!response.ok) {
@@ -97,8 +140,8 @@ export default function CadastroEndereco() {
         <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="Apelido" className="block text-sm font-bold text-black mb-1">Apelido do endereço</label>
-              <input type="text" id="Apelido" name="Apelido" value={endereco.Apelido} onChange={handleChange} required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
+              <label htmlFor="nome" className="block text-sm font-bold text-black mb-1">Apelido do endereço</label>
+              <input type="text" id="nome" name="nome" value={endereco.nome} onChange={handleChange} required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
             </div>
             <div>
               <label htmlFor="cep" className="block text-sm font-bold text-black mb-1">CEP</label>
