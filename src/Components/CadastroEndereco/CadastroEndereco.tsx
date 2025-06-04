@@ -8,26 +8,58 @@ export default function CadastroEndereco() {
   const [loading, setLoading] = useState(false);
   
   const [endereco, setEndereco] = useState({
-    salvarRota: "",
+    Apelido: "",
     cep: "",
     logradouro: "",
-    numero: "",
-    complemento: "",
     bairro: "",
     cidade: "",
-    estado: ""
+    estado: "",
+    latitude: '',
+    longitude: ''
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEndereco(prev => ({ ...prev, [name]: value }));
-    setError(''); 
+    setError('');
+
+  if (name === 'cep') {
+    let novoValor = value;
+    novoValor = value.replace(/\D/g, '');
+    setEndereco(prev => ({ ...prev, [name]: novoValor }));
+    setError('');
+
+  }
+  
+  if (name === 'cep' && value.length >= 8) {
+
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${value}/json/`);
+      const data = await response.json();
+
+      if (data.erro) {
+        setError('CEP não encontrado');
+      } else {
+        setEndereco(prev => ({
+          ...prev,
+          logradouro: data.logradouro,
+          bairro: data.bairro,
+          cidade: data.localidade,
+          estado: data.uf,
+        }));
+      }
+    } catch (error) {
+      setError('Erro ao buscar CEP');
+    }
+  }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    console.log(endereco)
 
     try {
       const response = await fetch("http://localhost:8080/endereco", {
@@ -57,7 +89,7 @@ export default function CadastroEndereco() {
       <div className="w-full max-w-2xl bg-white rounded-lg shadow-md p-10 flex flex-col items-center">
         <h1 className="text-3xl font-extrabold mb-2 text-center tracking-wide text-black">Cadastro de Endereço</h1>
         <p className="text-xs text-black font-semibold mb-6 text-center">
-          Cadastre seu endereço para receber alertas
+          Cadastre seu endereço usando apenas o cep
         </p>
         {error && (
           <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
@@ -65,8 +97,8 @@ export default function CadastroEndereco() {
         <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="salvarRota" className="block text-sm font-bold text-black mb-1">Nome da rota</label>
-              <input type="text" id="salvarRota" name="salvarRota" value={endereco.salvarRota} onChange={handleChange} required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
+              <label htmlFor="Apelido" className="block text-sm font-bold text-black mb-1">Apelido do endereço</label>
+              <input type="text" id="Apelido" name="Apelido" value={endereco.Apelido} onChange={handleChange} required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
             </div>
             <div>
               <label htmlFor="cep" className="block text-sm font-bold text-black mb-1">CEP</label>
@@ -74,27 +106,19 @@ export default function CadastroEndereco() {
             </div>
             <div>
               <label htmlFor="logradouro" className="block text-sm font-bold text-black mb-1">Logradouro</label>
-              <input type="text" id="logradouro" name="logradouro" value={endereco.logradouro} onChange={handleChange} className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
-            </div>
-            <div>
-              <label htmlFor="numero" className="block text-sm font-bold text-black mb-1">Número</label>
-              <input type="text" id="numero" name="numero" value={endereco.numero} onChange={handleChange} required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
-            </div>
-            <div>
-              <label htmlFor="complemento" className="block text-sm font-bold text-black mb-1">Complemento</label>
-              <input type="text" id="complemento" name="complemento" value={endereco.complemento} onChange={handleChange} className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
+              <input type="text" id="logradouro" name="logradouro" value={endereco.logradouro} readOnly className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
             </div>
             <div>
               <label htmlFor="bairro" className="block text-sm font-bold text-black mb-1">Bairro</label>
-              <input type="text" id="bairro" name="bairro" value={endereco.bairro} onChange={handleChange} required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
+              <input type="text" id="bairro" name="bairro" value={endereco.bairro} readOnly required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
             </div>
             <div>
               <label htmlFor="cidade" className="block text-sm font-bold text-black mb-1">Cidade</label>
-              <input type="text" id="cidade" name="cidade" value={endereco.cidade} onChange={handleChange} required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
+              <input type="text" id="cidade" name="cidade" value={endereco.cidade} readOnly required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
             </div>
             <div>
               <label htmlFor="estado" className="block text-sm font-bold text-black mb-1">Estado</label>
-              <input type="text" id="estado" name="estado" value={endereco.estado} onChange={handleChange} required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
+              <input type="text" id="estado" name="estado" value={endereco.estado} readOnly required className="w-full bg-[#E9E9E9] border-none rounded px-3 py-2" />
             </div>
           </div>
           
