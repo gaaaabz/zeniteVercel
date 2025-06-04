@@ -22,7 +22,7 @@ export default function CadastroEndereco() {
   useEffect(() => {
     const usuarioJSON = localStorage.getItem("usuarioLogado");
     if (!usuarioJSON) {
-      router.push('/');
+      router.push('/login');
       return;
     }
 

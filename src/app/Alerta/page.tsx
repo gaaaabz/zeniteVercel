@@ -9,7 +9,7 @@ const Alerta = dynamic(() => import('@/Components/Alerta/Alerta'), {
 export default function AlertaPage() {
   return (
     <div className="min-h-screen bg-gray-400">
-      <Alerta />
+      <Alerta  />
     </div>
   );
 } 
