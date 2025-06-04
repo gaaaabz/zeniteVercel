@@ -29,7 +29,6 @@ export default function Header() {
           Zenite
         </button>
         {Logado ?(<nav className="flex gap-4 items-center">
-            <Link href="/servicos" className="bg-[#64748B] hover:bg-[#475569] text-white font-semibold px-4 py-2 rounded transition-colors">Serviços</Link>
             <button onClick={handleLogout} className="bg-[#64748B] hover:bg-[#475569] text-white font-semibold px-4 py-2 rounded transition-colors border-none cursor-pointer">Sair</button>
           </nav>
           ):(<nav className="flex gap-4">
