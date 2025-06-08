@@ -105,7 +105,7 @@ export default function CadastroEndereco() {
     setEndereco(enderecoCompleto)
     console.log(enderecoCompleto)
  
-      const response = await fetch("http://localhost:8080/endereco", {
+      const response = await fetch("https://zenite-gs-production.up.railway.app/endereco", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
