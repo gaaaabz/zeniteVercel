@@ -113,7 +113,7 @@ export default function Login() {
         <div className="mt-4 text-xs text-center flex flex-row items-center justify-center gap-1">
           <span className="text-gray-600">Caso não tenha cadastro</span>
           <Link 
-            href="/cadastrar" 
+            href="/Cadastrar" 
             className="text-[#00386B] font-semibold hover:underline text-xs transition-colors"
           >
             Criar conta
