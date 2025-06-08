@@ -1,92 +1,60 @@
 # Front-End Design Engineering  
-### **Turma:** 1TDSPB 
+### **Turma:** 1TDSPB e 1TDSPR
 
 
 ---
 
-O projeto Conectrilhos foi desenvolvido utilizando Next.js 15.2.3, com foco em boas práticas de desenvolvimento, garantindo organização semântica, responsividade e experiência de usuário intuitiva.
-Este projeto foi desenvolvido com o intuito de aprimorar a experiência dos usuários de transporte público, oferecendo informações claras e atualizadas.
+Zênite é um aplicativo inteligente que te avisa com antecedência sobre tempestades, mudanças bruscas de clima e condições atmosféricas especiais. Com um design leve, notificações claras e uma linguagem acessível, o Zênite traduz dados meteorológicos em informações úteis para o seu dia a dia.
+Se vai chover forte, mudar o vento, cair a temperatura ou surgir uma frente fria, o Zênite te avisa com carinho – e com precisão.
+
 
 ---
 
-## Página de Problemas Relatados
+A aplicação foi construída utilizando **Next.js com App Router** e **TypeScript**, priorizando a criação de uma arquitetura modular, escalável e centrada em componentes reutilizáveis. A abordagem SPA é mantida com o uso de `useEffect`, `useState` e navegação por `next/navigation`.
 
-**Descrição:**  
-Apresenta uma lista dinâmica dos problemas previamente relatados pelo usuário.
+#### Fluxo de Autenticação
 
-**Características:**
-- Requisição `fetch` para exibir os problemas relacionados ao usuário logado.
-- Exibição interativa com botões `accordion`, utilizando `aria-*` para acessibilidade.
-- Validação de sessão com redirecionamento para login caso não esteja autenticado.
-- Botão para relatar novo problema via `<Link>`.
+- O login realiza uma requisição POST para a API back-end (Node.js/Express) hospedada no [Railway](https://zenite-gs-production.up.railway.app).  
+- O token JWT é armazenado localmente (`localStorage`) e utilizado para proteger as rotas.  
+- Middleware personalizado (implementado via `useEffect`) redireciona o usuário para `/login` caso não esteja autenticado.
 
----
+####  Cadastro de Endereços
 
-## Página de Relatar Problema 
+- O usuário informa um **CEP**, e os dados de endereço (rua, cidade, estado, bairro) são preenchidos automaticamente utilizando a API pública **ViaCEP**.  
+- Após confirmação, o endereço é persistido via requisição POST para o back-end.
 
-**Descrição:**  
-Permite que o usuário relate um problema ocorrido no trajeto pelas estações.
+####  Clima e Alertas
 
-**Características:**
-- Formulário com campos de data e descrição.
-- Integração com os dados do usuário via `localStorage`.
-- Envio dos dados para a API usando `fetch` com método `POST`.
-- Feedback ao usuário com mensagens de sucesso ou erro.
-- Proteção por autenticação com redirecionamento ao login.
+- Cada endereço cadastrado é utilizado para buscar:  
+  - Dados climáticos atuais via **OpenWeather API** (`/weather`)  
+  - Alertas meteorológicos via **WeatherAPI** (`/alerts`)  
+- A conversão de endereço textual em coordenadas geográficas (latitude/longitude) é feita via **OpenCage API**, permitindo chamadas baseadas em geolocalização.
 
----
+####  Lógica de Sugestões
 
-## Página de Serviços com Cards 
+- A aplicação exibe recomendações com base em condições meteorológicas (ex: “Leve um casaco!” se a temperatura estiver abaixo de 18 °C), aplicando lógica condicional à resposta da API de clima.
 
-**Descrição:**  
-Interface em grade com atalhos rápidos para funcionalidades como cupons, perfil, relato de problemas e visualização de problemas já relatados.
+####  Organização de Componentes
 
-**Características:**
-- Layout `grid` responsivo com `div` e `Link`.
-- Links para:  
-  - **Cupons** (`/cupons`)  
-  - **Perfil** (`/perfil`)  
-  - **Relatar Problema** (`/relatarproblema`)  
-  - **Problemas Relatados** (`/problemasrelatados`)  
+- **Pages**: páginas acessíveis via rotas (`/login`, `/cadastro`, etc.)  
+- **Components**: UI reutilizável (inputs, cards, loading states)  
+- **Services**: abstrações para consumo de APIs externas e da API própria  
+- **Utils**: funções auxiliares (ex: parseamento de respostas, formatação de temperatura)  
+- **Styles**: estilização com Tailwind, utilizando classes utilitárias.
 
----
+####  Controle de Erros
 
-## Página de Login (`index.tsx`)
+- Feedback visual para o usuário em caso de:  
+  - Erro na autenticação  
+  - CEP inválido ou não encontrado  
+  - APIs indisponíveis  
+- Utilização de `try/catch` e validações com mensagens claras no front-end.
 
-**Descrição:**  
-Página onde os usuários podem realizar login no sistema.
+#### Segurança
 
-**Características:**
-- **Autenticação:** Verifica se o usuário já está logado utilizando `localStorage`. Caso contrário, exibe a tela de login.
-- **Campos:** 
-  - E-mail
-  - Senha
-- **Funcionalidade:**
-  - Realiza o envio dos dados via `fetch` para a API de login, utilizando o método `POST`.
-  - Caso o login seja bem-sucedido, os dados do usuário são armazenados no `localStorage` e a página é recarregada.
-  - Caso contrário, exibe um alerta informando erro na autenticação.
-
----
-
-## Página de Cadastro (`Cadastro.tsx`)
-
-**Descrição:**  
-Página de cadastro de novos usuários para o sistema.
-
-**Características:**
-- **Autenticação:** Verifica se o usuário já está logado e redireciona para a página principal, caso afirmativo.
-- **Campos:**
-  - Nome Completo
-  - CPF
-  - E-mail
-  - Telefone
-  - Data de Nascimento
-  - Senha
-  - Gênero (Masculino, Feminino, Não binário, Outro)
-- **Funcionalidade:**
-  - Realiza o envio dos dados via `fetch` para a API de cadastro, utilizando o método `POST`.
-  - Em caso de sucesso, o usuário é redirecionado para a página inicial.
-  - Em caso de erro, exibe um alerta informando o problema no cadastro.
+- As rotas críticas são protegidas com validação de token JWT.  
+- Campos de entrada são validados antes do envio.  
+- A navegação é bloqueada caso o usuário tente acessar rotas sem autenticação válida.
 
 ---
 
