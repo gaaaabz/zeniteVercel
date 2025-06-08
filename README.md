@@ -58,6 +58,11 @@ A aplicação foi construída utilizando **Next.js com App Router** e **TypeScri
 
 ---
 
+#### Video
+https://drive.google.com/file/d/1r2PCk8MeK2r_-JWV9cYdj3F58_Qei5wz/view?usp=sharing
+
+---
+
 ### Membros do Projeto
 Feedbacks são bem-vindos para melhorias contínuas!
 
