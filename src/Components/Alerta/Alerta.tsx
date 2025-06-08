@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 export default function ClimaAlertasPage() {
   const [cidades, setCidades] = useState<any[]>([]);
   const router = useRouter();
+  const [error, setError] = useState('');
   useEffect(() => {
 
     const usuarioJSON = localStorage.getItem("usuarioLogado");
@@ -22,8 +23,12 @@ export default function ClimaAlertasPage() {
       try {
         const res = await fetch(`https://zenite-gs-production.up.railway.app/endereco/usuario/${idUsuario}`);
         if (!res.ok) throw new Error("Erro ao buscar endereços");
-        const enderecos = await res.json();
-
+        const text = await res.text();
+        if (!text) {
+          setError("Nenhum endereço cadastrado");
+          return;
+        }
+        const enderecos = JSON.parse(text); 
         const cidadesComClima = await Promise.all(
           enderecos.map(async (endereco: any) => {
             const resClima = await fetch(
@@ -77,6 +82,7 @@ export default function ClimaAlertasPage() {
               alertas
             };
           })
+          
         );
 
         setCidades(cidadesComClima);
@@ -107,6 +113,9 @@ export default function ClimaAlertasPage() {
       <section className="w-full max-w-7xl bg-gray-200 rounded-xl shadow-lg p-8">
         <h1 className="text-3xl font-extrabold text-[#000000] text-center mb-8">Clima e Alertas</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-8">
+             {error && (
+          <p className="text-black text-sm mb-4 text-center">{error}</p>
+        )}
           {cidades.map((cidade, idx) => (
             <div key={idx} className="bg-white rounded-lg shadow-md p-6 flex flex-col gap-4">
               <div className="flex items-center gap-3 mb-2">
