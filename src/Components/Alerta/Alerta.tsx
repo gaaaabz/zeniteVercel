@@ -3,7 +3,45 @@ import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from "react";
 
 export default function ClimaAlertasPage() {
-  const [cidades, setCidades] = useState<any[]>([]);
+
+  type WeatherApiAlert = {
+    headline?: string;
+    event?: string;
+    desc?: string;
+    msg?: string;
+  };
+
+  type Endereco = {
+    id: number;
+    nome: string;
+    cidade: string;
+    latitude: number;
+    longitude: number;
+  };
+
+  type Alerta = {
+    titulo: string;
+    descricao: string;
+  };
+
+  type CidadeClimaAlertas = {
+    id: number;
+    nome: string;
+    uf: string;
+    temperatura: number;
+    descricao: string;
+    umidade: number;
+    vento: number;
+    pressao: number;
+    visibilidade: number;
+    nascer: string;
+    por: string;
+    icone: string;
+    alertas: Alerta[];
+  };
+
+
+  const [cidades, setCidades] = useState<CidadeClimaAlertas[]>([]);
   const router = useRouter();
   const [error, setError] = useState('');
   useEffect(() => {
@@ -30,7 +68,7 @@ export default function ClimaAlertasPage() {
         }
         const enderecos = JSON.parse(text); 
         const cidadesComClima = await Promise.all(
-          enderecos.map(async (endereco: any) => {
+          (enderecos as Endereco[]).map(async (endereco) => {
             const resClima = await fetch(
               `https://api.openweathermap.org/data/2.5/weather?lat=${endereco.latitude}&lon=${endereco.longitude}&appid=12c1487aa8317768af0265b6ca00854e&units=metric&lang=pt_br`
             );
@@ -41,11 +79,11 @@ export default function ClimaAlertasPage() {
               `http://api.weatherapi.com/v1/alerts.json?key=91148a813cdb48c580605740252805&q=${encodeURIComponent(endereco.cidade)}`
             );
 
-            let alertas = [];
+            let alertas: Alerta[] = [];
             if (resAlertas.ok) {
               const alertasData = await resAlertas.json();
-              if (alertasData.alert && alertasData.alert.alert.length > 0) {
-                alertas = alertasData.alert.alert.map((alerta: any) => ({
+              if (alertasData.alert && Array.isArray(alertasData.alert.alert)) {
+                alertas = (alertasData.alert.alert as WeatherApiAlert[]).map((alerta) => ({
                   titulo: alerta.headline || alerta.event || "Alerta",
                   descricao: alerta.desc || alerta.msg || "Sem descrição",
                 }));

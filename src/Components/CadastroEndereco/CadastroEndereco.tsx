@@ -7,16 +7,16 @@ export default function CadastroEndereco() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-     const [endereco, setEndereco] = useState({
-      nome: "",
-      cep: "",
-      logradouro: "",
-      bairro: "",
-      cidade: "",
-      estado: "",
-      latitude: '',
-      longitude: '',
-      idUsuario: 0
+  const [endereco, setEndereco] = useState({
+    nome: "",
+    cep: "",
+    logradouro: "",
+    bairro: "",
+    cidade: "",
+    estado: "",
+    latitude: '',
+    longitude: '',
+    idUsuario: 0
   });
 
   useEffect(() => {
@@ -32,79 +32,73 @@ export default function CadastroEndereco() {
       idUsuario: usuario.id
     }));
   }, []);
-    
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEndereco(prev => ({ ...prev, [name]: value }));
     setError('');
 
-  if (name === 'cep') {
-    let novoValor = value;
-    novoValor = value.replace(/\D/g, '');
-    setEndereco(prev => ({ ...prev, [name]: novoValor }));
-    setError('');
-
-  }
-  
-  if (name === 'cep' && value.length >= 8) {
-
-    try {
-      const response = await fetch(`https://viacep.com.br/ws/${value}/json/`);
-      const data = await response.json();
-
-      if (data.erro) {
-        setError('CEP não encontrado');
-      } else {
-        setEndereco(prev => ({
-          ...prev,
-          logradouro: data.logradouro,
-          bairro: data.bairro,
-          cidade: data.localidade,
-          estado: data.uf,
-        }));
-      }
-    } catch (error) {
-      setError('Erro ao buscar CEP');
+    if (name === 'cep') {
+      const novoValor = value.replace(/\D/g, '');
+      setEndereco(prev => ({ ...prev, [name]: novoValor }));
+      setError('');
     }
-  }
+
+    if (name === 'cep' && value.length >= 8) {
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${value}/json/`);
+        const data = await response.json();
+
+        if (data.erro) {
+          setError('CEP não encontrado');
+        } else {
+          setEndereco(prev => ({
+            ...prev,
+            logradouro: data.logradouro,
+            bairro: data.bairro,
+            cidade: data.localidade,
+            estado: data.uf,
+          }));
+        }
+      } catch {
+        setError('Erro ao buscar CEP');
+      }
+    }
   };
 
   const pegarLatLong = async () => {
-    
-  try {
-    const enderecoCompleto = `${endereco.logradouro}, ${endereco.bairro}, ${endereco.cidade}, ${endereco.estado}`;
+    try {
+      const enderecoCompleto = `${endereco.logradouro}, ${endereco.bairro}, ${endereco.cidade}, ${endereco.estado}`;
+      const response = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(enderecoCompleto)}&key=76f96f8dcfa6497497248424504e63bb`);
+      const data = await response.json();
 
-    const response = await fetch(`https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(enderecoCompleto)}&key=76f96f8dcfa6497497248424504e63bb`);
-    const data = await response.json();
+      if (data && data.results && data.results.length > 0) {
+        const { lat, lng } = data.results[0].geometry;
+        return {
+          ...endereco,
+          latitude: lat,
+          longitude: lng,
+        };
+      }
+    } catch {
+      console.error('Erro ao obter coordenadas');
+    }
+  };
 
-    if (data && data.results && data.results.length > 0) {
-      const { lat, lng } = data.results[0].geometry;
-      return {
-        ...endereco,
-        latitude: lat,
-        longitude: lng,
-      };
-    }
-    } catch (error) {
-    console.error('Erro ao obter coordenadas:', error);
-    }
-  }
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const enderecoCompleto = await pegarLatLong(); // <- AQUI você espera o resultado
+      const enderecoCompleto = await pegarLatLong();
 
-    if (!enderecoCompleto) {
-      throw new Error('Não foi possível obter latitude/longitude');
-    }
-  
+      if (!enderecoCompleto) {
+        throw new Error('Não foi possível obter latitude/longitude');
+      }
 
-    setEndereco(enderecoCompleto)
-    console.log(enderecoCompleto)
- 
+      setEndereco(enderecoCompleto);
+      console.log(enderecoCompleto);
+
       const response = await fetch("https://zenite-gs-production.up.railway.app/endereco", {
         method: "POST",
         headers: {
@@ -119,7 +113,7 @@ export default function CadastroEndereco() {
 
       alert("Endereço cadastrado com sucesso!");
       router.push("/");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Erro ao cadastrar:", error);
       setError('Erro ao cadastrar endereço. Por favor, tente novamente.');
     } finally {
