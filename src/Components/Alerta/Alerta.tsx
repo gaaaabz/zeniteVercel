@@ -20,7 +20,7 @@ export default function ClimaAlertasPage() {
 
     async function buscarDados() {
       try {
-        const res = await fetch(`http://localhost:8080/endereco/usuario/${idUsuario}`);
+        const res = await fetch(`https://zenite-gs-production.up.railway.app/endereco/usuario/${idUsuario}`);
         if (!res.ok) throw new Error("Erro ao buscar endereços");
         const enderecos = await res.json();
 
@@ -90,7 +90,7 @@ export default function ClimaAlertasPage() {
 
   async function handleDelete(id: number) {
       try{
-        const response = await fetch((`http://localhost:8080/endereco/deletar/${id}`), {
+        const response = await fetch((`https://zenite-gs-production.up.railway.app/endereco/deletar/${id}`), {
       method: 'DELETE'
     });
     if (!response.ok) {
